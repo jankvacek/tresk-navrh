@@ -1,0 +1,557 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import os
+
+OUT_DIR = "/tmp/claude-0/-home-claude/f383fd1c-00c2-5e94-8d46-15f4992ec897/scratchpad/pages"
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Placeholder tokens replaced with real published URLs in phase 2.
+URL = {
+    "domu": "{{URL_DOMU}}",
+    "sortiment": "{{URL_SORTIMENT}}",
+    "reference": "{{URL_REFERENCE}}",
+    "kestazeni": "{{URL_KESTAZENI}}",
+    "kontakt": "{{URL_KONTAKT}}",
+}
+
+BASE_CSS = """
+:root{
+  --bg:#ffffff;
+  --bg-2:#f4f7f7;
+  --line:rgba(0,0,0,.09);
+  --txt:#222222;
+  --muted:#5a5a5a;
+  --teal:#009c9e;
+  --teal-dark:#006061;
+  --teal-deep:#008688;
+  --orange:#f7941e;
+  --r:14px;
+  --sans: ui-sans-serif, "Segoe UI", Roboto, Arial, sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans); color:var(--txt); background:var(--bg); line-height:1.55; -webkit-font-smoothing:antialiased;}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+
+header{position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid var(--line);}
+.topbar{background:var(--teal-dark); color:#fff; font-size:13px;}
+.topbar .wrap{display:flex; justify-content:space-between; align-items:center; padding:8px 24px; gap:12px; flex-wrap:wrap;}
+.topbar a:hover{text-decoration:underline;}
+nav.main{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; gap:16px;}
+.logo{font-weight:800; font-size:26px; letter-spacing:.5px; color:var(--teal-dark);}
+.logo span{color:var(--orange);}
+.navlinks{display:flex; gap:26px; font-weight:600; font-size:15px;}
+.navlinks a{color:var(--txt); padding:4px 0; border-bottom:2px solid transparent;}
+.navlinks a:hover{color:var(--teal);}
+.navlinks a[aria-current="page"]{color:var(--teal-dark); border-bottom-color:var(--orange);}
+.cta-btn{background:var(--teal); color:#fff; font-weight:700; font-size:14px; padding:11px 20px; border-radius:8px; white-space:nowrap; box-shadow:0 2px 0 var(--teal-dark);}
+.cta-btn:hover{background:var(--teal-deep);}
+.burger{display:none; font-size:26px; background:none; border:none; cursor:pointer; color:var(--teal-dark); line-height:1;}
+.mobile-menu{display:none; flex-direction:column; gap:2px; padding:6px 24px 18px; border-top:1px solid var(--line);}
+.mobile-menu a{padding:12px 4px; font-weight:600; font-size:15.5px; color:var(--txt); border-bottom:1px solid var(--line);}
+.mobile-menu a:last-child{border-bottom:none;}
+.mobile-menu.open{display:flex;}
+
+.page-hero{
+  position:relative; color:#fff; padding:64px 0 72px; overflow:hidden;
+  background: linear-gradient(120deg, rgba(0,96,97,.94), rgba(0,156,158,.86));
+}
+.page-hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(560px 280px at 88% 0%, rgba(247,148,30,.26), transparent 60%);
+}
+.page-hero .wrap{position:relative;}
+.eyebrow{display:inline-block; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:6px 14px; border-radius:999px; margin-bottom:18px;}
+.page-hero h1{font-size:clamp(30px,4.2vw,46px); font-weight:800; line-height:1.1; letter-spacing:-.01em; text-wrap:balance; max-width:26ch; margin-bottom:14px;}
+.page-hero h1 em{color:var(--orange); font-style:normal;}
+.page-hero p{font-size:17px; color:rgba(255,255,255,.92); max-width:56ch;}
+.hero-actions{display:flex; gap:14px; flex-wrap:wrap; margin-top:26px;}
+.btn{display:inline-flex; align-items:center; gap:8px; padding:14px 26px; border-radius:9px; font-weight:700; font-size:15px;}
+.btn-primary{background:var(--orange); color:#26150a; box-shadow:0 3px 0 #c76f00;}
+.btn-primary:hover{background:#ff9f2e;}
+.btn-ghost{background:rgba(255,255,255,.08); color:#fff; border:1.5px solid rgba(255,255,255,.55);}
+.btn-ghost:hover{background:rgba(255,255,255,.18);}
+
+.hero-card{background:#fff; color:var(--txt); border-radius:16px; padding:26px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+.hero-card h3{font-size:15px; text-transform:uppercase; letter-spacing:.05em; color:var(--teal-dark); margin-bottom:14px;}
+.hero-card ul{list-style:none; display:flex; flex-direction:column; gap:11px; font-size:15px;}
+.hero-card li{display:flex; gap:10px; align-items:flex-start;}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--orange); margin-top:7px; flex:none;}
+.hero-card .hours{margin-top:16px; padding-top:16px; border-top:1px solid var(--line); font-size:14px; color:var(--muted);}
+.hero-card .hours b{color:var(--txt);}
+.hero-2col{display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center;}
+
+.trust{background:var(--bg-2); border-bottom:1px solid var(--line);}
+.trust .wrap{display:flex; justify-content:space-between; padding:26px 24px; flex-wrap:wrap; gap:20px;}
+.trust .stat{text-align:center; flex:1; min-width:140px;}
+.trust .stat b{display:block; font-size:28px; color:var(--teal-dark); font-weight:800; font-variant-numeric:tabular-nums;}
+.trust .stat span{font-size:13px; color:var(--muted);}
+
+section{padding:72px 0;}
+.section-head{max-width:640px; margin:0 auto 40px; text-align:center;}
+.section-head.left{margin:0 0 36px; text-align:left;}
+.kicker{color:var(--teal); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px;}
+.section-head h2{font-size:clamp(24px,3.2vw,34px); font-weight:800; letter-spacing:-.01em; text-wrap:balance;}
+.section-head p{color:var(--muted); margin-top:12px; font-size:16px;}
+
+.grid-products{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+.grid-products.compact{grid-template-columns:repeat(4,1fr);}
+.p-card{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:26px 24px; transition:transform .15s, box-shadow .15s, border-color .15s;}
+.p-card:hover{transform:translateY(-4px); box-shadow:0 14px 30px rgba(0,60,60,.10); border-color:var(--teal);}
+.p-icon{width:48px; height:48px; border-radius:11px; background:var(--bg-2); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:16px; border:1px solid var(--line);}
+.p-card h3{font-size:17px; font-weight:700; margin-bottom:8px;}
+.p-card p{font-size:14.5px; color:var(--muted); margin-bottom:12px;}
+.p-card ul{list-style:none; display:flex; flex-direction:column; gap:6px; font-size:13.5px; color:var(--muted);}
+.p-card ul li::before{content:"— "; color:var(--teal);}
+.p-card .more{margin-top:16px; font-size:13.5px; font-weight:700; color:var(--teal-dark);}
+
+.band{background:var(--bg-2);}
+.why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px;}
+.why-card{text-align:center; padding:8px;}
+.why-card .num{width:44px; height:44px; border-radius:50%; background:var(--teal); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; margin:0 auto 14px;}
+.why-card h4{font-size:15.5px; font-weight:700; margin-bottom:6px;}
+.why-card p{font-size:14px; color:var(--muted);}
+
+.contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;}
+.contact-card{background:var(--bg-2); border-radius:var(--r); padding:30px; border:1px solid var(--line);}
+.contact-card h3{font-size:17px; margin-bottom:6px;}
+.contact-card .role{color:var(--teal-dark); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:14px;}
+.contact-row{display:flex; justify-content:space-between; padding:10px 0; border-top:1px solid var(--line); font-size:14.5px; gap:12px;}
+.contact-row:first-of-type{border-top:none;}
+.contact-row span:first-child{color:var(--muted);}
+.map-box{height:100%; min-height:220px; border-radius:var(--r); border:1px solid var(--line); background:linear-gradient(135deg, var(--bg-2), #eef4f4); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; text-align:center; padding:20px;}
+
+/* Gallery (reference) */
+.gallery-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+.gallery-card{border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:#fff;}
+.gallery-img{
+  height:180px;
+  background:
+    repeating-linear-gradient(135deg, var(--bg-2) 0 14px, #eef4f4 14px 28px);
+  display:flex; align-items:center; justify-content:center; color:var(--teal-dark); font-size:13px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.04em;
+}
+.gallery-body{padding:16px 18px;}
+.gallery-body h4{font-size:15px; margin-bottom:4px;}
+.gallery-body span{font-size:13px; color:var(--muted);}
+.gallery-note{background:var(--bg-2); border:1px dashed var(--line); border-radius:var(--r); padding:16px 20px; font-size:13.5px; color:var(--muted); margin-top:28px;}
+
+/* Downloads */
+.download-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+.dl-card{border:1px solid var(--line); border-radius:var(--r); padding:24px; background:#fff; display:flex; flex-direction:column; gap:10px;}
+.dl-icon{width:44px; height:44px; border-radius:10px; background:var(--bg-2); display:flex; align-items:center; justify-content:center; font-size:20px; border:1px solid var(--line);}
+.dl-card h4{font-size:16px;}
+.dl-card p{font-size:13.5px; color:var(--muted); flex:1;}
+.dl-btn{align-self:flex-start; font-size:13.5px; font-weight:700; color:var(--teal-dark); border:1.5px solid var(--teal); border-radius:8px; padding:8px 14px;}
+.dl-note{margin-top:24px; font-size:13.5px; color:var(--muted); background:var(--bg-2); border:1px dashed var(--line); border-radius:var(--r); padding:14px 18px;}
+
+/* Form */
+.form-card{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:30px;}
+.form-row{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+.form-row label{font-size:13.5px; font-weight:700; color:var(--txt);}
+.form-row input, .form-row textarea{
+  border:1px solid var(--line); border-radius:8px; padding:11px 13px; font-family:inherit; font-size:14.5px; color:var(--txt); background:var(--bg-2);
+}
+.form-row input:focus, .form-row textarea:focus{outline:2px solid var(--teal); outline-offset:1px; background:#fff;}
+.form-note{font-size:12.5px; color:var(--muted); margin-top:10px;}
+
+footer{background:#101c1c; color:#c7d6d6; padding:44px 0 26px;}
+.foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:32px; margin-bottom:30px;}
+footer h4{color:#fff; font-size:14px; margin-bottom:14px; letter-spacing:.03em;}
+footer .flogo{color:#fff; font-weight:800; font-size:20px; margin-bottom:10px;}
+footer .flogo span{color:var(--orange);}
+footer p{font-size:13.5px; color:#9fb3b3; max-width:32ch;}
+footer ul{list-style:none; display:flex; flex-direction:column; gap:9px; font-size:14px;}
+footer ul a:hover{color:#fff;}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.1); padding-top:20px; display:flex; justify-content:space-between; font-size:12.5px; color:#7f9494; flex-wrap:wrap; gap:8px;}
+
+.palette-note{background:#fff; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); padding:18px 0;}
+.palette-note .wrap{display:flex; align-items:center; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--muted);}
+.swatch{display:flex; align-items:center; gap:8px;}
+.swatch i{width:22px; height:22px; border-radius:6px; display:inline-block; border:1px solid rgba(0,0,0,.1);}
+
+:focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} .p-card,.btn,.cta-btn{transition:none;} }
+
+@media (max-width:880px){
+  .navlinks, .topbar{display:none;}
+  .burger{display:block;}
+  .hero-2col{grid-template-columns:1fr;}
+  .grid-products, .grid-products.compact, .gallery-grid, .download-grid{grid-template-columns:1fr 1fr;}
+  .why-grid{grid-template-columns:1fr 1fr;}
+  .contact-grid{grid-template-columns:1fr;}
+  .foot-grid{grid-template-columns:1fr;}
+}
+@media (max-width:560px){
+  .grid-products, .grid-products.compact, .gallery-grid, .download-grid, .why-grid{grid-template-columns:1fr;}
+  section{padding:52px 0;}
+}
+"""
+
+def nav(active):
+    items = [
+        ("domu", "Domů"),
+        ("sortiment", "Sortiment"),
+        ("reference", "Reference"),
+        ("kestazeni", "Ke stažení"),
+        ("kontakt", "Kontakt"),
+    ]
+    def link(key, label, cls="a"):
+        cur = ' aria-current="page"' if key == active else ""
+        return f'<a href="{URL[key]}"{cur}>{label}</a>'
+    desktop = "\n      ".join(link(k, l) for k, l in items)
+    mobile = "\n    ".join(link(k, l) for k, l in items)
+    return desktop, mobile
+
+def header(active):
+    desktop, mobile = nav(active)
+    return f"""<header>
+  <div class="topbar">
+    <div class="wrap">
+      <span>Za Tratí 976, Třebechovice pod Orebem · Po–Pá 7:00–16:00</span>
+      <a href="tel:+420777753973">📞 +420 777 753 973</a>
+    </div>
+  </div>
+  <nav class="main">
+    <a href="{URL['domu']}" class="logo">TRESK<span>.</span></a>
+    <div class="navlinks">
+      {desktop}
+    </div>
+    <a href="{URL['kontakt']}" class="cta-btn">Nezávazná poptávka</a>
+    <button class="burger" id="burgerBtn" aria-expanded="false" aria-controls="mobileMenu">☰</button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    {mobile}
+    <a href="tel:+420777753973">📞 +420 777 753 973</a>
+  </div>
+</header>"""
+
+def footer():
+    return f"""<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="flogo">TRESK<span>.</span></div>
+        <p>Výroba a prodej stavebních materiálů v Třebechovicích pod Orebem. Vlastní produkce, osobní přístup.</p>
+      </div>
+      <div>
+        <h4>Web</h4>
+        <ul>
+          <li><a href="{URL['domu']}">Domů</a></li>
+          <li><a href="{URL['sortiment']}">Sortiment</a></li>
+          <li><a href="{URL['reference']}">Reference</a></li>
+          <li><a href="{URL['kestazeni']}">Ke stažení</a></li>
+          <li><a href="{URL['kontakt']}">Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kontakt</h4>
+        <ul>
+          <li>Za Tratí 976, Třebechovice p. O.</li>
+          <li><a href="tel:+420777753973">+420 777 753 973</a></li>
+          <li><a href="mailto:stavebniny@tresk.eu">stavebniny@tresk.eu</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Stavebniny Tresk</span>
+      <span>Náhled nového designu — ukázka, ne finální web</span>
+    </div>
+  </div>
+</footer>
+
+<div class="palette-note">
+  <div class="wrap">
+    <strong style="color:var(--txt)">Zachovaná paleta z původního webu:</strong>
+    <div class="swatch"><i style="background:#009c9e"></i> #009c9e</div>
+    <div class="swatch"><i style="background:#006061"></i> #006061</div>
+    <div class="swatch"><i style="background:#f7941e"></i> #f7941e</div>
+    <div class="swatch"><i style="background:#333333"></i> #333333</div>
+  </div>
+</div>"""
+
+SCRIPT = """<script>
+  var burgerBtn = document.getElementById('burgerBtn');
+  var mobileMenu = document.getElementById('mobileMenu');
+  burgerBtn.addEventListener('click', function(){
+    var isOpen = mobileMenu.classList.toggle('open');
+    burgerBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    burgerBtn.textContent = isOpen ? '✕' : '☰';
+  });
+</script>"""
+
+def page(title, active, body):
+    return f"""<title>{title}</title>
+<style>{BASE_CSS}</style>
+{header(active)}
+{body}
+{footer()}
+{SCRIPT}
+"""
+
+# ---------------- DOMŮ ----------------
+domu_body = f"""
+<section class="page-hero">
+  <div class="wrap hero-2col">
+    <div>
+      <span class="eyebrow">Stavebniny Třebechovice pod Orebem</span>
+      <h1>Stavební materiál, který <em>máte na místě</em> — ne za tři dny</h1>
+      <p>Zdicí materiály, výztuž, sádrokarton, izolace i míchání barev. Poradíme, naložíme a je to hotové ještě dnes.</p>
+      <div class="hero-actions">
+        <a href="{URL['kontakt']}" class="btn btn-primary">Poptat materiál →</a>
+        <a href="{URL['sortiment']}" class="btn btn-ghost">Sortiment</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>Provozní doba</h3>
+      <ul>
+        <li><span class="dot"></span> Zbyněk Prášek — +420 777 753 973</li>
+        <li><span class="dot"></span> Jan Prášek — +420 724 801 848</li>
+        <li><span class="dot"></span> stavebniny@tresk.eu</li>
+      </ul>
+      <div class="hours"><b>Po–Pá:</b> 7:00–16:00 &nbsp;·&nbsp; <b>So–Ne:</b> zavřeno</div>
+    </div>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="wrap">
+    <div class="stat"><b>2</b><span>generace rodinné firmy</span></div>
+    <div class="stat"><b>500+</b><span>vyřízených zakázek</span></div>
+    <div class="stat"><b>7:00</b><span>otevíráme každý všední den</span></div>
+    <div class="stat"><b>1</b><span>místo pro celou stavbu</span></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Co u nás seženete</div>
+      <h2>Sortiment pro celou stavbu</h2>
+      <p>Vlastní výrobky TRESK i materiál od ověřených dodavatelů — jedna cesta, jedno auto.</p>
+    </div>
+    <div class="grid-products compact">
+      <div class="p-card"><div class="p-icon">🧱</div><h3>Zdicí materiály</h3><p>Výrobky TRESK a další zdicí systémy.</p></div>
+      <div class="p-card"><div class="p-icon">🔩</div><h3>Výztuž a sítě</h3><p>Betonářská ocel a kari sítě.</p></div>
+      <div class="p-card"><div class="p-icon">📐</div><h3>Sádrokarton</h3><p>Profily, desky, spojovací materiál.</p></div>
+      <div class="p-card"><div class="p-icon">🧊</div><h3>Izolace</h3><p>Tepelné izolace na míru stavbě.</p></div>
+    </div>
+    <div style="text-align:center; margin-top:32px;">
+      <a href="{URL['sortiment']}" class="btn btn-primary" style="box-shadow:none;">Zobrazit celý sortiment →</a>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Proč Tresk</div>
+      <h2>Rodinná firma, co ví, co prodává</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card"><div class="num">1</div><h4>Materiál skladem</h4><p>Většinu sortimentu naložíte hned.</p></div>
+      <div class="why-card"><div class="num">2</div><h4>Osobní poradenství</h4><p>Poradíme s množstvím i skladbou.</p></div>
+      <div class="why-card"><div class="num">3</div><h4>Regionální firma</h4><p>Známe místní stavby i řemeslníky.</p></div>
+      <div class="why-card"><div class="num">4</div><h4>Jasné ceny</h4><p>Ceník ke stažení, žádné skryté položky.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Stavebniny Tresk</h3>
+        <div class="role">Za Tratí 976, 503 46 Třebechovice pod Orebem</div>
+        <div class="contact-row"><span>Telefon</span><span>+420 777 753 973</span></div>
+        <div class="contact-row"><span>E-mail</span><span>stavebniny@tresk.eu</span></div>
+        <div class="contact-row"><span>Po–Pá</span><span>7:00–16:00</span></div>
+      </div>
+      <div>
+        <h2 style="font-size:22px; margin-bottom:12px;">Potřebujete poradit s materiálem?</h2>
+        <p style="color:var(--muted); margin-bottom:20px;">Napište nebo zavolejte — poradíme s množstvím i skladbou materiálu na míru vaší stavbě.</p>
+        <a href="{URL['kontakt']}" class="btn btn-primary" style="box-shadow:none;">Přejít na kontakt →</a>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+
+# ---------------- SORTIMENT ----------------
+sortiment_body = f"""
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Sortiment</span>
+    <h1>Materiál pro celou stavbu, na jednom místě</h1>
+    <p>Vlastní výrobky TRESK i materiál od ověřených dodavatelů. Většinu sortimentu naložíte rovnou skladem.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="grid-products">
+      <div class="p-card">
+        <div class="p-icon">🧱</div>
+        <h3>Zdicí materiály</h3>
+        <p>Výrobky TRESK a další zdicí systémy pro hrubou stavbu.</p>
+        <ul><li>Tvárnice a bloky</li><li>Překlady</li><li>Maltové směsi</li></ul>
+      </div>
+      <div class="p-card">
+        <div class="p-icon">🔩</div>
+        <h3>Výztuž a sítě</h3>
+        <p>Betonářská ocel, kari sítě, doplňkový sortiment pro základy.</p>
+        <ul><li>Betonářská ocel</li><li>Kari sítě</li><li>Distanční prvky</li></ul>
+      </div>
+      <div class="p-card">
+        <div class="p-icon">📐</div>
+        <h3>Sádrokarton</h3>
+        <p>Profily, desky a spojovací materiál pro suchou výstavbu.</p>
+        <ul><li>SDK desky</li><li>Kovové profily</li><li>Tmely a pásky</li></ul>
+      </div>
+      <div class="p-card">
+        <div class="p-icon">🏗️</div>
+        <h3>Cement a omítky</h3>
+        <p>Pytlované i volně ložené směsi pro hrubé i finální omítky.</p>
+        <ul><li>Cementy</li><li>Vnitřní a vnější omítky</li><li>Stěrky</li></ul>
+      </div>
+      <div class="p-card">
+        <div class="p-icon">🧊</div>
+        <h3>Izolace</h3>
+        <p>Tepelné izolace a izolační desky na míru vaší stavbě.</p>
+        <ul><li>Fasádní izolace</li><li>Izolace střech</li><li>Doplňkový kotvicí materiál</li></ul>
+      </div>
+      <div class="p-card">
+        <div class="p-icon">🎨</div>
+        <h3>Míchání barev</h3>
+        <p>Nářadí, kování a přímo na místě namíchaný odstín barvy.</p>
+        <ul><li>Míchání na počkání</li><li>Ruční nářadí</li><li>Stavební kování</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap" style="text-align:center;">
+    <h2 style="font-size:26px; margin-bottom:14px;">Nejste si jistí, co přesně potřebujete?</h2>
+    <p style="color:var(--muted); max-width:52ch; margin:0 auto 24px;">Pošlete nám rozpis stavby nebo zavolejte — spočítáme množství i poskládáme materiál tak, aby vám nic nechybělo.</p>
+    <a href="{URL['kontakt']}" class="btn btn-primary" style="box-shadow:none;">Poptat materiál →</a>
+  </div>
+</section>
+"""
+
+# ---------------- REFERENCE ----------------
+reference_body = f"""
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Reference</span>
+    <h1>Stavby, na kterých je vidět náš materiál</h1>
+    <p>Výběr realizací — rodinné domy i průmyslové stavby v Královéhradeckém kraji.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="gallery-grid">
+      <div class="gallery-card"><div class="gallery-img">Foto stavby</div><div class="gallery-body"><h4>Rodinný dům</h4><span>Třebechovice pod Orebem</span></div></div>
+      <div class="gallery-card"><div class="gallery-img">Foto stavby</div><div class="gallery-body"><h4>Bytový dům</h4><span>Hradec Králové</span></div></div>
+      <div class="gallery-card"><div class="gallery-img">Foto stavby</div><div class="gallery-body"><h4>Průmyslová hala</h4><span>Smiřice</span></div></div>
+      <div class="gallery-card"><div class="gallery-img">Foto stavby</div><div class="gallery-body"><h4>Rekonstrukce fasády</h4><span>Třebechovice pod Orebem</span></div></div>
+      <div class="gallery-card"><div class="gallery-img">Foto stavby</div><div class="gallery-body"><h4>Rodinný dům</h4><span>Librantice</span></div></div>
+      <div class="gallery-card"><div class="gallery-img">Foto stavby</div><div class="gallery-body"><h4>Zemědělský objekt</h4><span>Černožice</span></div></div>
+    </div>
+    <div class="gallery-note">Toto je maketa galerie — dlaždice čekají na skutečné fotky realizací. Ve finální verzi jde nahradit fotkami jedním přetažením.</div>
+  </div>
+</section>
+"""
+
+# ---------------- KE STAŽENÍ ----------------
+kestazeni_body = f"""
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Ke stažení</span>
+    <h1>Ceníky, katalogy a certifikáty</h1>
+    <p>Aktuální dokumenty ke stažení — bez nutnosti volat nebo psát.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="download-grid">
+      <div class="dl-card">
+        <div class="dl-icon">📄</div>
+        <h4>Aktuální ceník</h4>
+        <p>Kompletní ceník zdicích materiálů a doplňkového sortimentu.</p>
+        <span class="dl-btn">Stáhnout PDF</span>
+      </div>
+      <div class="dl-card">
+        <div class="dl-icon">📘</div>
+        <h4>Katalog produktů</h4>
+        <p>Přehled výrobků TRESK včetně technických parametrů.</p>
+        <span class="dl-btn">Stáhnout PDF</span>
+      </div>
+      <div class="dl-card">
+        <div class="dl-icon">🏅</div>
+        <h4>Certifikáty kvality</h4>
+        <p>Prohlášení o vlastnostech a certifikáty zdicích materiálů.</p>
+        <span class="dl-btn">Stáhnout PDF</span>
+      </div>
+    </div>
+    <div class="dl-note">Toto jsou maketové karty — v ostré verzi vedou tlačítka na skutečné PDF soubory nahrané na webu.</div>
+  </div>
+</section>
+"""
+
+# ---------------- KONTAKT ----------------
+kontakt_body = f"""
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Kontakt</span>
+    <h1>Spojte se s námi</h1>
+    <p>Zavolejte, napište, nebo vyplňte poptávku — ozveme se zpět ještě týž den.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap contact-grid" style="align-items:start;">
+    <div>
+      <div class="contact-card" style="margin-bottom:22px;">
+        <h3>Stavebniny Tresk</h3>
+        <div class="role">Za Tratí 976, 503 46 Třebechovice pod Orebem</div>
+        <div class="contact-row"><span>Zbyněk Prášek</span><span>+420 777 753 973</span></div>
+        <div class="contact-row"><span>Jan Prášek</span><span>+420 724 801 848</span></div>
+        <div class="contact-row"><span>E-mail</span><span>stavebniny@tresk.eu</span></div>
+        <div class="contact-row"><span>Po–Pá</span><span>7:00–16:00</span></div>
+        <div class="contact-row"><span>So–Ne</span><span>zavřeno</span></div>
+      </div>
+      <div class="map-box">Mapa / poloha provozovny<br>(v ostré verzi vložená mapa)</div>
+    </div>
+    <div class="form-card">
+      <h3 style="margin-bottom:18px;">Nezávazná poptávka</h3>
+      <form onsubmit="event.preventDefault(); alert('Toto je maketa formuláře — v ostré verzi odesílá poptávku na e-mail.');">
+        <div class="form-row"><label>Jméno a příjmení</label><input type="text" placeholder="Jan Novák" required></div>
+        <div class="form-row"><label>Telefon nebo e-mail</label><input type="text" placeholder="+420 …" required></div>
+        <div class="form-row"><label>Co potřebujete</label><textarea rows="4" placeholder="Např. paleta tvárnic, 20 m² sádrokartonu…"></textarea></div>
+        <button type="submit" class="btn btn-primary" style="box-shadow:none; width:100%; justify-content:center;">Odeslat poptávku</button>
+        <div class="form-note">Maketa formuláře — v ostré verzi napojeno na e-mail nebo poptávkový systém.</div>
+      </form>
+    </div>
+  </div>
+</section>
+"""
+
+PAGES = {
+    "tresk-domu.html": ("Stavebniny Tresk — Třebechovice pod Orebem", "domu", domu_body),
+    "tresk-sortiment.html": ("Sortiment — Stavebniny Tresk", "sortiment", sortiment_body),
+    "tresk-reference.html": ("Reference — Stavebniny Tresk", "reference", reference_body),
+    "tresk-ke-stazeni.html": ("Ke stažení — Stavebniny Tresk", "kestazeni", kestazeni_body),
+    "tresk-kontakt.html": ("Kontakt — Stavebniny Tresk", "kontakt", kontakt_body),
+}
+
+for fname, (title, active, body) in PAGES.items():
+    content = page(title, active, body)
+    with open(os.path.join(OUT_DIR, fname), "w", encoding="utf-8") as f:
+        f.write(content)
+
+print("Generated:", list(PAGES.keys()))
